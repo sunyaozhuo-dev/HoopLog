@@ -133,7 +133,28 @@ export default function HomeScreen() {
                   </View>
                 </View>
 
-                {/* 训练计划：已打卡且无计划项时隐藏 */}
+                {/* 已打卡：打卡状态在上，计划在下 */}
+                {isTodayLogged && (
+                  <Pressable
+                    disabled
+                    style={[
+                      styles.checkInBtn,
+                      { backgroundColor: c.surface },
+                    ]}
+                  >
+                    <Ionicons name="checkmark-circle" size={40} color={c.accent} />
+                    <Text
+                      style={[
+                        styles.checkInText,
+                        { color: c.accent, fontFamily: Fonts.semiBold },
+                      ]}
+                    >
+                      {t.checkedIn}
+                    </Text>
+                  </Pressable>
+                )}
+
+                {/* 训练计划 */}
                 {(!isTodayLogged || totalCount > 0) && (
                   <PlanCard
                     items={todayPlan?.items ?? []}
@@ -151,7 +172,7 @@ export default function HomeScreen() {
                   />
                 )}
 
-                {/* 全部完成横幅 */}
+                {/* 未打卡：全部完成横幅 */}
                 {showAllDoneBanner && (
                   <Pressable
                     onPress={handleCheckIn}
@@ -170,48 +191,39 @@ export default function HomeScreen() {
                   </Pressable>
                 )}
 
-                {/* 打卡按钮 */}
-                <Pressable
-                  onPress={handleCheckIn}
-                  disabled={isTodayLogged}
-                  style={({ pressed }) => [
-                    styles.checkInBtn,
-                    {
-                      backgroundColor: isTodayLogged ? c.surface : c.accent,
-                      opacity: pressed && !isTodayLogged ? 0.85 : 1,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name={isTodayLogged ? "checkmark-circle" : "basketball"}
-                    size={40}
-                    color={isTodayLogged ? c.accent : "#FFFFFF"}
-                  />
-                  <Text
-                    style={[
-                      styles.checkInText,
+                {/* 未打卡：打卡按钮在计划下方 */}
+                {!isTodayLogged && (
+                  <Pressable
+                    onPress={handleCheckIn}
+                    style={({ pressed }) => [
+                      styles.checkInBtn,
                       {
-                        color: isTodayLogged ? c.accent : "#FFFFFF",
-                        fontFamily: Fonts.semiBold,
+                        backgroundColor: c.accent,
+                        opacity: pressed ? 0.85 : 1,
                       },
                     ]}
                   >
-                    {isTodayLogged ? t.checkedIn : t.checkIn}
-                  </Text>
-                  {totalCount > 0 && (
+                    <Ionicons name="basketball" size={40} color="#FFFFFF" />
                     <Text
                       style={[
-                        styles.planProgress,
-                        {
-                          color: isTodayLogged ? c.textSecondary : "rgba(255,255,255,0.8)",
-                          fontFamily: Fonts.regular,
-                        },
+                        styles.checkInText,
+                        { color: "#FFFFFF", fontFamily: Fonts.semiBold },
                       ]}
                     >
-                      {doneCount}/{totalCount} {t.planCompleted}
+                      {t.checkIn}
                     </Text>
-                  )}
-                </Pressable>
+                    {totalCount > 0 && (
+                      <Text
+                        style={[
+                          styles.planProgress,
+                          { color: "rgba(255,255,255,0.8)", fontFamily: Fonts.regular },
+                        ]}
+                      >
+                        {doneCount}/{totalCount} {t.planCompleted}
+                      </Text>
+                    )}
+                  </Pressable>
+                )}
 
                 {/* 即将到来的计划 */}
                 {upcomingPlans.length > 0 && (
@@ -257,8 +269,8 @@ export default function HomeScreen() {
                   </View>
                 )}
 
-                {/* 打卡后：笔记输入区 */}
-                {isTodayLogged && !showNoteInput && (
+                {/* 笔记输入区 */}
+                {!showNoteInput && (
                   <Pressable
                     onPress={() => setShowNoteInput(true)}
                     style={[styles.addNoteBtn, { borderColor: c.border }]}
@@ -275,7 +287,7 @@ export default function HomeScreen() {
                   </Pressable>
                 )}
 
-                {isTodayLogged && showNoteInput && (
+                {showNoteInput && (
                   <View style={[styles.noteInputCard, { backgroundColor: c.surface }]}>
                     <TextInput
                       style={[
